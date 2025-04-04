@@ -1,84 +1,93 @@
 <template>
-	<view class="content">
-		<view class="top">
-			<up-row>
-				<up-col span="8">
-					<view class="user-card">
-						<up-avatar src="../../static/1.jpg" size="60"></up-avatar>
-						<view class="info">
-							<view class="name">MR.懵</view>
-							<up-tag type="warning" shape="circle" bgColor="#ef7d7f" icon="star" size="mini">中品维度会员</up-tag>
+	<view class="main" :style="{height:btom}">
+		<view class="chat">
+			<scroll-view class="message-list" scroll-y :scroll-into-view="scrollIntoViewId" @scrolltoupper="handleRefresh"
+				:refresher-enabled="true" :refresher-triggered="isRefreshing" @refresherrefresh="onPullDownRefresh">
+				<!-- 下拉刷新提示 -->
+				<view v-if="isRefreshing" class="refresh-tip">正在刷新...</view>
+	
+				<!-- 消息内容 -->
+				<view v-for="(msg, index) in messages" :key="index" :id="'msg-' + index" class="message-item">
+					<view :class="['message-bubble', msg.isUser ? 'user-message' : 'other-message']">
+						{{ msg.content }}
+					</view>
+				</view>
+				<view class="message-item">
+					<view class="frist-message">
+						<up-avatar class="avatar" src="../../static/1.jpg" size="54"></up-avatar>
+						<view class="text">您好，智能客服助手为您服务</view>
+					</view>
+					<view class="tips-message">
+						<view>正在转接中，人工客服马上为您服务</view>
+						<view>您可以先描述问题哦~</view>
+					</view>
+				</view>
+				<view class="message-item user-area">
+					<view class="product-item-message">
+						<view class="card-top">
+							<up-avatar src="../../static/1.jpg" shape="square" size="70"></up-avatar>
+							<view class="info">
+								<view class="name">十月稻田 黄金玉米段 1.6斤（8段） 黄糯aaaa1111232132131232131211aa</view>
+								<view class="pirce">￥200.00</view>
+							</view>
+						</view>
+						<view class="card-bottom">
+							<view class="text">7天无理由退款 30天只换不修</view>
+							<up-icon name="arrow-right" size="12"></up-icon>
 						</view>
 					</view>
-				</up-col>
-				<up-col span="4">
-					<view class="btns">
-						<up-icon name="kefu-ermai" color="#fff" size="30"></up-icon>
-						<up-icon name="photo" color="#fff" size="30"></up-icon>
-						<up-icon name="setting" color="#fff" size="30"></up-icon>
+				</view>
+				<view class="message-item">
+					<view class="service-message">
+						亲亲，您的眼光真的是太棒了<br>【飞利浦电视 焕新购】<br> 32时6590 下单到手不高于558元<br>【补】领取国补下单再打8.5折，到手474.3元
+						<br>【赠】晒单赠20元京东E卡(2图+20文字) <br>【送】只换不修服务
 					</view>
-				</up-col>
-			</up-row>
+				</view>
+				<view class="message-item user-area">
+					<view class="user-message">
+						您好，这东东质保期有多久呢?
+					</view>
+				</view>
+				<view class="message-item">
+					<view class="tips-message">
+						<view>昨天 12:30</view>
+					</view>
+				</view>
+				<view class="message-item">
+					<view class="tips-message">
+						<view>很久没有收到您的回复，如已解决问题，请为我评价</view>
+					</view>
+				</view>
+				<view class="message-card">
+					<view class="evaluate-card">
+						<up-grid col="5">
+							<view class="item" v-for="(item, index) in ratings" :key="index"
+								@click="handleRatingClick(index)">
+								<up-avatar :src="selectedRating === index ? ratingImages[index] : item.src"
+									size="34"></up-avatar>
+								<view class="text">{{ item.text }}</view>
+							</view>
+						</up-grid>
+						<up-divider textColor="#333333" lineColor="#E4E4E4" text="问题是否解决"></up-divider>
+						<view class="solve-btns">
+							<view class="btn" :class="{ active: activeButton === '已解决' }" @click="handleButtonClick('已解决')">
+								已解决
+							</view>
+							<view class="btn" :class="{ active: activeButton === '未解决' }" @click="handleButtonClick('未解决')">
+								未解决
+							</view>
+						</view>
+						<view class="opinion">
+							<up-textarea v-model="value1" placeholder="您有任何想说的，都可以告诉我们" count maxlength="200" height="76px"
+								placeholderStyle="color: #CACACA;font-size:12px;"></up-textarea>
+						</view>
+						<view class="submit-btn">提交评价</view>
+					</view>
+				</view>
+			</scroll-view>
 		</view>
-		<view class="num-box">
-			<up-row class="card">
-				<up-col span="6" class="item box">
-					<view class="num">750</view>
-					<view class="title">余额</view>
-				</up-col>
-				<up-col span="6" class="item">
-					<view class="num">0</view>
-					<view class="title">积分</view>
-				</up-col>
-			</up-row>
-			<view class="warning"><up-icon name="warning" color="#895331" size="20"></up-icon>{{warning}}</view>
-		</view>
-		<view class="shopping-cart">
-			<view class="item">
-				<up-icon name="bag" size="70"></up-icon>
-				<view class="title">待付款</view>
-			</view>
-			<view class="item">
-				<up-icon name="bag" size="70"></up-icon>
-				<view class="title">待发货</view>
-			</view>
-			<view class="item">
-				<up-icon name="bag" size="70"></up-icon>
-				<view class="title">待结算</view>
-			</view>
-			<view class="item">
-				<up-icon name="bag" size="70"></up-icon>
-				<view class="title">待评价</view>
-			</view>
-			<view class="item">
-				<up-icon name="bag" size="70"></up-icon>
-				<view class="title">全部</view>
-			</view>
-		</view>
-		<view class="anc">
-			<view class="box">
-				<up-icon name="volume" size="20"></up-icon>
-				<up-icon name="volume" size="30" class="img"></up-icon>
-				<up-notice-bar :icon="false" bgColor="#fff" :text="anc" direction="column"></up-notice-bar>
-			</view>
-		</view>
-		<view class="function-group">
-			<up-grid :border="false" :col="5">
-				<up-grid-item v-for="i in 10" :key="i">
-					<up-icon name="bag" size="70"></up-icon>
-					<view class="title">全部</view>
-				</up-grid-item>
-			</up-grid>
-		</view>
-		<view class="other-function">
-			<up-row>
-				<up-col span="6">
-					<view class="item">申请分平台服务商</view>
-				</up-col>
-				<up-col span="6">
-					<view class="item">申请分平台服务商</view>
-				</up-col>
-			</up-row>
+		<view class="input">
+			input
 		</view>
 	</view>
 </template>
@@ -87,184 +96,257 @@
 export default {
   data() {
     return {
-      title: 'Hello',
-      warning: '未绑定中品一号会员账号，同步积分可抵扣订单金额。',
-      anc: [
-        '中品一号会员，可享受会员折扣，积分抵扣，返现等优惠1。',
-        '中品一号会员，可享受会员折扣，积分抵扣，返现等优惠2。',
-        '中品一号会员，可享受会员折扣，积分抵扣，返现等优惠3。'
-      ]
+      btom: "",//自动获取可视区域的高度
+      messages: [
+        { content: "你好！", isUser: false },
+        { content: "有什么可以帮你的吗？", isUser: false },
+      ], // 消息列表
+      newMessage: "", // 当前输入的消息
+      scrollIntoViewId: "", // 滚动到最新消息的 ID
+      isRefreshing: false, // 是否正在刷新
+      selectedRating: null, // 当前选中的评分项索引
+      ratings: [
+        { src: "../../static/icon/feichangbuman.png", text: "非常不满意" },
+        { src: "../../static/icon/buman.png", text: "不满意" },
+        { src: "../../static/icon/yiban.png", text: "一般" },
+        { src: "../../static/icon/manyi.png", text: "满意" },
+        { src: "../../static/icon/feichngmanyi.png", text: "非常满意" },
+      ],
+      ratingImages: [
+        "../../static/icon/feichangbumandianji.png",
+        "../../static/icon/bumandianji.png",
+        "../../static/icon/yibandianji.png",
+        "../../static/icon/manyidianji.png",
+        "../../static/icon/feichngmanyidianji.png",
+      ],
+      activeButton: "已解决", // 当前激活的按钮
     }
   },
-  onLoad() {
-
+  mounted() {
+    this.btom = uni.getWindowInfo().windowHeight + "px"
+    console.log(this.btom);
   },
   methods: {
-
-  }
+    handleRatingClick(index) {
+      this.selectedRating = index;
+    },
+    handleButtonClick(buttonText) {
+      this.activeButton = buttonText;
+    },
+  },
 }
+
 </script>
-
 <style lang="scss" scoped>
-body {
-	background-color: #e4e4e4;
-}
+.chat {
+	height: 90%;
 
-.content {
-	padding: 15px;
-	position: relative;
-}
+	.message-list {
+		flex: 1;
+		overflow-y: auto;
+		padding: 12px;
+		background-color: #f5f5f5;
+		height: 100%;
+		width: calc(100% - 24px);
+		// 动态计算聊天区域的高度
 
-.content::before {
-	content: '';
-	position: absolute;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 120px;
-	background-color: #db2729;
-	z-index: -1;
-}
+		.message-item {
+			margin: 10px 0;
 
-.top {
-	background-color: #db2729;
-
-	.user-card {
-		display: flex;
-		flex-direction: row;
-		align-items: center;
-
-		.info {
-			margin-left: 10px;
-			display: flex;
-			flex-direction: column;
-		}
-
-		.name {
-			font-size: 16px;
-			margin: 3px 0;
-		}
-
-
-	}
-
-	.btns {
-		display: flex;
-		flex-direction: row;
-		align-items: center;
-		justify-content: space-around;
-	}
-}
-
-.num-box {
-	margin-top: 10px;
-	background-color: #fff;
-	padding-top: 10px;
-	border-radius: 15px;
-
-	.card {
-		margin-bottom: 10px;
-
-		.item {
-			display: flex;
-			flex-direction: column;
-			align-items: center;
-			justify-content: center;
-			padding: 16px 0;
-
-			.num {
-				text-align: center;
-				font-size: 34px;
-				font-weight: bold;
-				margin-bottom: 5px;
+			.message-bubble {
+				max-width: 80%;
+				padding: 11px;
+				border-radius: 6px;
+				font-size: 18px;
+				line-height: 1.5;
 			}
 
-			.title {
-				margin-top: 8px;
-				text-align: center;
-				font-size: 16px;
-				color: #999;
+			.service-message {
+				max-width: 80%;
+				background-color: white;
+				padding: 10px;
+				border-radius: 8px;
+				font-size: 14px;
+				color: #333333;
+			}
+
+			.user-message {
+				max-width: 80%;
+				background-color: #FFEBEB;
+				padding: 10px;
+				border-radius: 8px;
+				font-size: 14px;
+				color: #333333;
+			}
+
+			.other-message {
+				align-self: flex-start;
+				background-color: #fff;
+				color: #333;
+				box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+			}
+
+			.frist-message {
+				height: 54px;
+				position: relative;
+				display: flex;
+				flex-direction: column-reverse;
+
+				.avatar {
+					position: absolute;
+					top: 0;
+					left: 0;
+					border-radius: 50%;
+					background-color: #fff;
+					box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+				}
+
+				.text {
+					margin-left: 20px;
+					padding: 11px 11px 11px 50px;
+					border-radius: 6px;
+					font-size: 12px;
+					line-height: 1.5;
+					align-self: flex-start;
+					background-color: #fff;
+					color: #333333;
+					box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+				}
+			}
+
+			.tips-message {
+				margin: 18px 0;
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				justify-content: center;
+				gap: 10px;
+				font-size: 11px;
+				color: #666666;
+			}
+
+			.product-item-message {
+				width: 78%;
+				background-color: white;
+				padding: 10px;
+				border-radius: 8px;
+
+				.card-top {
+					display: flex;
+					flex-direction: row;
+					align-items: start;
+
+					.info {
+						margin-left: 10px;
+						display: flex;
+						flex-direction: column;
+						justify-content: space-between;
+						width: 100%;
+
+						.name {
+							font-size: 14px;
+							color: #333;
+							overflow: hidden;
+							text-overflow: ellipsis;
+							display: -webkit-box;
+							-webkit-line-clamp: 2;
+							-webkit-box-orient: vertical;
+						}
+
+						.pirce {
+							font-size: 13px;
+							color: #C83F24;
+						}
+					}
+				}
+
+				.card-bottom {
+					display: flex;
+					flex-direction: row;
+					align-items: center;
+					justify-content: space-between;
+					margin-top: 10px;
+					font-size: 14px;
+					color: #C87224;
+				}
+			}
+
+		}
+
+		.message-card {
+			width: calc(100% - 22px);
+
+			.evaluate-card {
+				width: 100%;
+				background-color: #FFFFFF;
+				border-radius: 8px;
+				padding: 16px 11px;
+
+				.item {
+					display: flex;
+					flex-direction: column;
+					align-items: center;
+					justify-content: center;
+					padding: 16px 11px;
+					font-size: 10px;
+					color: #999999;
+
+					.text {
+						margin-top: 12px;
+					}
+				}
+
+				.solve-btns {
+					display: flex;
+					flex-direction: row;
+					justify-content: center;
+					margin-top: 20px;
+					gap: 20px;
+
+					view {
+						padding: 6px 33px;
+						border-radius: 8px;
+						font-size: 14px;
+						color: #FFFFFF;
+						margin: 0;
+						background-color: #F5F5F5;
+						border: 1px solid #E0E0E0;
+					}
+
+					.active {
+						background-color: #C83F24;
+						border: 1px solid #C83F24;
+					}
+				}
+
+				.opinion {
+					margin-top: 16px;
+				}
+
+				.submit-btn {
+					margin-top: 10px;
+					padding: 7px 0;
+					text-align: center;
+					border-radius: 8px;
+					font-size: 14px;
+					color: #FFFFFF;
+					background-color: #C83F24;
+				}
+
+				.submit-btn:active {
+					background-color: #ad3017;
+				}
 			}
 		}
 
-		.box {
-			border-right: 1px solid #eee;
-		}
-	}
-
-	.warning {
-		display: flex;
-		flex-direction: row;
-		font-size: 13px;
-		color: #999;
-		align-items: center;
-		margin-top: 10px;
-		color: #895235;
-		background-color: #ecc59b;
-		padding: 4px 5px;
-		border-radius: 0 0 15px 15px;
-	}
-}
-
-.shopping-cart {
-	margin-top: 10px;
-	background-color: #fff;
-	border-radius: 15px;
-	display: flex;
-	flex-direction: row;
-	flex-wrap: wrap;
-	justify-content: space-around;
-
-	.item {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: center;
-		padding: 6px 0;
-
-		.title {
-			text-align: center;
-			font-size: 14px;
-			color: #999;
+		.user-area {
+			display: flex;
+			flex-direction: row-reverse;
 		}
 	}
 }
 
-.anc {
-	margin-top: 10px;
-	background-color: #fff;
-	border-radius: 15px;
-	padding: 10px;
-
-	.box {
-		display: flex;
-		flex-direction: row;
-		align-items: center;
-		justify-content: space-between;
-	}
-
-	.img {
-		margin: 0 3px;
-	}
-}
-
-.function-group {
-	margin-top: 10px;
-	background-color: #fff;
-	border-radius: 15px;
-	padding: 10px;
-}
-
-.other-function {
-	margin-top: 10px;
-
-		.item {
-			background-color: #fff;
-			border: 1px solid #eee;
-			text-align: center;
-			padding: 70px 0;
-			margin: 10px;
-		}
-
+.input {
+	background-color: wheat;
 }
 </style>
